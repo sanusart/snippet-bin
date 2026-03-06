@@ -1,19 +1,29 @@
 {
   "info": {
-    "name": "SnippetBin API",
-    "description": "API for SnippetBin - Gists-like snippets app",
+    "name": "SnippetBin API (updated)",
+    "description": "API requests for SnippetBin. Register or log in to get the first `sb_tkn_*` token, then use that token when exercising the authenticated endpoints below.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3001",
-      "type": "string"
+      "value": "http://localhost:3001"
     },
     {
       "key": "token",
-      "value": "",
-      "type": "string"
+      "value": ""
+    },
+    {
+      "key": "gistId",
+      "value": ""
+    },
+    {
+      "key": "tokenId",
+      "value": ""
+    },
+    {
+      "key": "username",
+      "value": "snippet_user"
     }
   ],
   "item": [
@@ -24,7 +34,6 @@
           "name": "Register",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/auth/register",
             "header": [
               {
                 "key": "Content-Type",
@@ -33,15 +42,15 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
-            }
+              "raw": "{\n  \"username\": \"snippet_user\",\n  \"email\": \"snippet@example.com\",\n  \"name\": \"Snippet User\",\n  \"password\": \"securePass123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
           }
         },
         {
-          "name": "Login",
+          "name": "Login (email)",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/auth/login",
             "header": [
               {
                 "key": "Content-Type",
@@ -50,21 +59,44 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
-            }
-          }
+              "raw": "{\n  \"email\": \"snippet@example.com\",\n  \"password\": \"securePass123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "response": []
         },
         {
-          "name": "Get Current User",
+          "name": "Who am I",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/auth/user",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/auth/user"
+          }
+        },
+        {
+          "name": "Update name",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "token {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/user"
           }
         }
       ]
@@ -73,49 +105,48 @@
       "name": "Gists",
       "item": [
         {
-          "name": "List Gists",
+          "name": "List gists",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/gists",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists"
           }
         },
         {
-          "name": "Get Starred Gists",
+          "name": "List starred",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/gists/starred",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists/starred"
           }
         },
         {
-          "name": "Get Gist",
+          "name": "Get gist",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/gists/:id",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists/{{gistId}}"
           }
         },
         {
-          "name": "Create Gist",
+          "name": "Create gist",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/gists",
             "header": [
               {
                 "key": "Content-Type",
@@ -128,15 +159,15 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"My first gist\",\n  \"public\": false,\n  \"files\": {\n    \"hello.js\": {\n      \"content\": \"console.log('Hello, World!');\"\n    }\n  }\n}"
-            }
+              "raw": "{\n  \"description\": \"Hello from Postman\",\n  \"public\": false,\n  \"files\": {\n    \"hello.js\": {\n      \"content\": \"console.log('Hello world');\",\n      \"language\": \"javascript\"\n    }\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/gists"
           }
         },
         {
-          "name": "Update Gist",
+          "name": "Update gist",
           "request": {
             "method": "PATCH",
-            "url": "{{baseUrl}}/api/gists/:id",
             "header": [
               {
                 "key": "Content-Type",
@@ -149,47 +180,48 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Updated description\",\n  \"files\": {\n    \"hello.js\": {\n      \"content\": \"console.log('Updated!');\"\n    }\n  }\n}"
-            }
+              "raw": "{\n  \"description\": \"Updated via Postman\",\n  \"files\": {\n    \"hello.js\": {\n      \"content\": \"console.log('Updated!');\"\n    }\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/gists/{{gistId}}"
           }
         },
         {
-          "name": "Delete Gist",
+          "name": "Delete gist",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/api/gists/:id",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists/{{gistId}}"
           }
         },
         {
-          "name": "Star Gist",
+          "name": "Star gist",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/gists/:id/star",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists/{{gistId}}/star"
           }
         },
         {
-          "name": "Unstar Gist",
+          "name": "Unstar gist",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/api/gists/:id/star",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/gists/{{gistId}}/star"
           }
         }
       ]
@@ -198,23 +230,22 @@
       "name": "Tokens",
       "item": [
         {
-          "name": "List Tokens",
+          "name": "List tokens",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/tokens",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/tokens"
           }
         },
         {
-          "name": "Create Token",
+          "name": "Create token (authenticated)",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/tokens",
             "header": [
               {
                 "key": "Content-Type",
@@ -227,21 +258,39 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"note\": \"My API token\"\n}"
-            }
+              "raw": "{\n  \"note\": \"My Postman token\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tokens"
           }
         },
         {
-          "name": "Delete Token",
+          "name": "Create token (credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"snippet@example.com\",\n  \"password\": \"securePass123\",\n  \"note\": \"Postman credential token\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tokens"
+          }
+        },
+        {
+          "name": "Delete token",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/api/tokens/:id",
             "header": [
               {
                 "key": "Authorization",
                 "value": "token {{token}}"
               }
-            ]
+            ],
+            "url": "{{baseUrl}}/api/tokens/{{tokenId}}"
           }
         }
       ]
@@ -250,10 +299,10 @@
       "name": "Users",
       "item": [
         {
-          "name": "Get User",
+          "name": "Get user profile",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/users/:username"
+            "url": "{{baseUrl}}/api/users/{{username}}"
           }
         }
       ]

@@ -2,6 +2,9 @@
 
 A GitHub Gists-style snippet management application built with Node.js, React, and Tailwind CSS.
 
+> [!NOTE]
+> Snippet-bin is a completely self-hosted snippet management solution and is not associated with GitHub in any way.
+
 ## Features
 
 - Create, edit, and delete code snippets (gists)
@@ -17,36 +20,54 @@ A GitHub Gists-style snippet management application built with Node.js, React, a
 ### Development Mode
 
 1. Start the backend server:
+
    ```bash
    cd server
-   npm install
-   npm run dev
+   pnpm install
+   pnpm run dev
    ```
 
 2. Start the frontend (in a new terminal):
+
    ```bash
    cd client
-   npm install
-   npm run dev
+   pnpm install
+   pnpm run dev
    ```
 
 3. Open http://localhost:5173 in your browser
 
 ### Docker Deployment
 
-```bash
-docker-compose up --build
-```
+1. Clone, build, and run in one command:
+   ```bash
+   git clone https://github.com/<your-org>/snippet-bin.git
+   cd snippet-bin
+   docker compose up --build
+   ```
+2. After the containers finish building you can visit the same URLs as the dev setup:
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:3001
+3. Stop the stack with `docker compose down`, or use `docker compose down -v` if you want to remove the persisted data directories and start fresh.
 
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3001
+The Compose file already exposes both services, mounts `server/data` for the SQLite database (or git-backed storage), and reads `server/.env` + `client/.env`. If you want to override any variables before starting:
+
+- `SNIPPETBIN_DB_PATH`: path to the `sql.js` database file (default `data/snippetbin.db`)
+- `JWT_SECRET`: token secret used by the API (required for production)
+- `STORAGE_BACKEND`: `sqlite` or `git`; git mode also respects `STORAGE_GISTS_DIR`
+- `STORAGE_GISTS_DIR`: directory where bare repositories are stored when `STORAGE_BACKEND=git`
+
+> [!NOTE]
+> Create `server/.env` and `client/.env` files containing the values you need (for example, `JWT_SECRET=replace-with-a-secure-value`). The directories are already mounted into the containers, so edits to `.env` happen outside of Docker.
+>
+> Check example `.env.example` files in the repo for more details.
 
 ## API Usage
 
 ### Authentication
 
 Register a new user:
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
@@ -54,6 +75,7 @@ curl -X POST http://localhost:3001/api/auth/register \
 ```
 
 Login:
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
@@ -142,24 +164,40 @@ curl -H "Authorization: token sb_tkn_your_token_here" http://localhost:3001/api/
 curl http://localhost:3001/api/users/username
 ```
 
+### Update User Name
+
+```bash
+curl -X PATCH http://localhost:3001/api/auth/user \
+  -H "Content-Type: application/json" \
+  -H "Authorization: token sb_tkn_your_existing_token" \
+  -d '{"name": "New Display Name"}'
+```
+
+### Settings Tabs
+
+The Settings screen now exposes each tab via a dedicated URL: visit `/settings/profile` for the profile panel or `/settings/tokens` for the personal access token controls. The app also redirects `/settings` → `/settings/profile`.
+
 ## API Tokens
 
-Create API tokens in the Settings page or via the API:
+Create API tokens in the Settings page or via the API. The endpoint accepts two flows:
+
+- **Authenticated:** send `Authorization: token YOUR_JWT_OR_API_TOKEN` and it issues another `sb_tkn_*` token (the raw value is returned only once).
+- **Credential exchange:** call the same endpoint without an `Authorization` header but with `{ "email": "...", "password": "..." }` (or `username` instead of email) to swap credentials for a fresh API token.
 
 ```bash
 curl -X POST http://localhost:3001/api/tokens \
   -H "Content-Type: application/json" \
-  -H "Authorization: token sb_tkn_your_token_here" \
-  -d '{"note": "My API token"}'
+  -d '{"email": "you@example.com", "password": "yourpassword", "note": "My API token"}'
 ```
 
 Tokens are securely salted and hashed using PBKDF2 (100,000 iterations).
 
+You can also import `/postman-collection.json` into Postman to explore the endpoints via the provided requests.
+
 ## Tech Stack
 
-- **Backend**: Node.js, Express, SQLite (sql.js)
-- **Frontend**: React 18, Vite, Tailwind CSS
-- **Authentication**: Salted & hashed API tokens (PBKDF2)
+- **Backend**: Node.js, Express, SQLite (sql.js), Git expected to be installed on the host machine (included in docker)
+- **Frontend**: pnpm, React, Vite, Tailwind CSS
 - **Deployment**: Docker, Docker Compose
 
 ## License

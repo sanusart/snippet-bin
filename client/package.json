@@ -1,19 +1,22 @@
 {
-  "name": "snippet-bin-client",
+  "name": "client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
     "react-syntax-highlighter": "^15.5.0",
-    "highlight.js": "^11.9.0"
+    "highlight.js": "^11.9.0",
+    "@snippet-bin/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
@@ -23,6 +26,9 @@
     "esbuild": "^0.24.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "typescript": "^5.7.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/node": "^22.0.0",
     "vite": "^6.0.0"
   }
 }
