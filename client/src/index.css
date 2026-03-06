@@ -2,16 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-page: #0b111b;
+  --bg-panel: rgba(13, 17, 23, 0.92);
+  --border-color: rgba(148, 163, 184, 0.2);
+  --text-default: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-bright: #f6f8fa;
+  --accent: #539bf5;
+  --accent-strong: #2f81ff;
+  --shadow-soft: 0 12px 30px rgba(2, 12, 27, 0.45);
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background-color: #030712;
+  color: var(--text-default);
+  min-height: 100vh;
+  margin: 0;
 }
 
-code, pre, .font-mono {
-  font-family: 'Fira Code', Monaco, Consolas, monospace;
+code,
+pre,
+.font-mono {
+  font-family: 'Fira Code', 'JetBrains Mono', Monaco, Consolas, monospace;
 }
 
 ::-webkit-scrollbar {
@@ -20,32 +38,141 @@ code, pre, .font-mono {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(13, 17, 23, 0.75);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.55);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: rgba(148, 163, 184, 0.85);
 }
 
-.line-numbers {
-  counter-reset: line;
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  background: var(--bg-page);
+  overflow: hidden;
 }
 
-.line-numbers > span {
-  counter-increment: line;
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(88, 166, 255, 0.35), transparent 42%),
+    radial-gradient(circle at 80% 0%, rgba(255, 111, 170, 0.28), transparent 45%),
+    radial-gradient(circle at 50% 60%, rgba(111, 91, 255, 0.24), transparent 55%);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1;
 }
 
-.line-numbers > span::before {
-  content: counter(line);
-  display: inline-block;
-  width: 2em;
-  margin-right: 1em;
-  text-align: right;
-  color: #64748b;
-  user-select: none;
+.app-shell::after {
+  content: '';
+  position: absolute;
+  inset: -25% 0 -10% 0;
+  background: radial-gradient(circle at 60% 25%, rgba(255, 255, 255, 0.08), transparent 50%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.section-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+  padding: 1.1rem 1.25rem;
+}
+
+.section-panel--tight {
+  padding: 1rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-accent {
+  background: var(--accent-strong);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-accent:hover {
+  background: #0f73ff;
+}
+
+.btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  border-radius: 8px;
+  color: var(--text-bright);
+  padding: 0.35rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(3, 5, 8, 0.95);
+}
+
+.file-body {
+  padding: 0;
+}
+
+.code-surface {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.code-surface pre {
+  padding: 1rem 1.25rem;
+  margin: 0;
+  font-size: 0.85rem;
+  background: transparent !important;
+}
+
+.language-chip,
+.public-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.public-pill {
+  font-size: 0.7rem;
+  background: rgba(131, 145, 166, 0.2);
+  border-color: rgba(131, 145, 166, 0.5);
 }
