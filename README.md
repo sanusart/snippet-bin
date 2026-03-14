@@ -15,6 +15,12 @@ A self-hosted, open-source snippet management application inspired by GitHub Gis
 - Token-based API authentication (salted & hashed)
 - REST API inspired by the GitHub Gists API
 
+## Demo
+
+A video demonstration of the Snippet-bin features:
+
+![Snippet-bin Product Demo](docs/product-demo.webm)
+
 ## Quick Start
 
 ### Development Mode
