@@ -19,7 +19,7 @@ A self-hosted, open-source snippet management application inspired by GitHub Gis
 
 A video demonstration of the Snippet-bin features:
 
-<video src="https://github.com/user-attachments/assets/47fe4d55-6b92-45e7-85d0-cd46fd3cf80b" />
+<video src="https://github.com/user-attachments/assets/47fe4d55-6b92-45e7-85d0-cd46fd3cf80b"></video>
 
 
 ## Quick Start
