@@ -135,31 +135,31 @@ test('gist authorization enforces privacy and mutation boundaries', async () => 
   await withTestApp(async (client) => {
     // User A creates a private gist and a public gist
     const jwtA = await registerAndGetJwt(client);
-    
+
     const privateGist = await apiRequest(client, {
       method: 'POST',
       path: '/api/gists',
       headers: { Authorization: `Bearer ${jwtA}` },
-      body: { 
-        description: 'private gist', 
-        public: false, 
-        files: { 'secret.txt': { content: 'hidden', language: 'text' } } 
+      body: {
+        description: 'private gist',
+        public: false,
+        files: { 'secret.txt': { content: 'hidden', language: 'text' } },
       },
     });
     assert.equal(privateGist.status, 201);
-    
+
     // User B attempts to access A's private gist
     const jwtB = await apiRequest(client, {
       method: 'POST',
       path: '/api/auth/register',
-      body: { username: 'userB', email: 'b@example.com', password: 'password123', name: 'User B' }
+      body: { username: 'userB', email: 'b@example.com', password: 'password123', name: 'User B' },
     });
     const tokenB = jwtB.body.token;
 
     const accessPrivate = await apiRequest(client, {
       method: 'GET',
       path: `/api/gists/${privateGist.body.id}`,
-      headers: { Authorization: `Bearer ${tokenB}` }
+      headers: { Authorization: `Bearer ${tokenB}` },
     });
     assert.equal(accessPrivate.status, 404); // Should be completely hidden
 
@@ -168,18 +168,38 @@ test('gist authorization enforces privacy and mutation boundaries', async () => 
       method: 'PATCH',
       path: `/api/gists/${privateGist.body.id}`,
       headers: { Authorization: `Bearer ${tokenB}` },
-      body: { description: 'hacked' }
+      body: { description: 'hacked' },
     });
     assert.equal(modifyPrivate.status, 404);
 
-    // User B attempts to delete A's private gist
+    // User B attempts to delete A's private gist (403 - gist exists but not owner)
     const deletePrivate = await apiRequest(client, {
       method: 'DELETE',
       path: `/api/gists/${privateGist.body.id}`,
-      headers: { Authorization: `Bearer ${tokenB}` }
+      headers: { Authorization: `Bearer ${tokenB}` },
     });
-    assert.equal(deletePrivate.status, 404);
-    
+    assert.equal(deletePrivate.status, 403);
+
+    // Create a public gist and try to delete it (should be 403 - visible but not owner)
+    const publicGist = await apiRequest(client, {
+      method: 'POST',
+      path: '/api/gists',
+      headers: { Authorization: `Bearer ${jwtA}` },
+      body: {
+        description: 'public gist',
+        public: true,
+        files: { 'public.txt': { content: 'visible', language: 'text' } },
+      },
+    });
+    assert.equal(publicGist.status, 201);
+
+    const deletePublic = await apiRequest(client, {
+      method: 'DELETE',
+      path: `/api/gists/${publicGist.body.id}`,
+      headers: { Authorization: `Bearer ${tokenB}` },
+    });
+    assert.equal(deletePublic.status, 403);
+
     // Invalid starring operations
     const starMissing = await apiRequest(client, {
       method: 'POST',
@@ -193,39 +213,39 @@ test('gist authorization enforces privacy and mutation boundaries', async () => 
 test('gist file manipulations handle partial datasets', async () => {
   await withTestApp(async (client) => {
     const jwt = await registerAndGetJwt(client);
-    
+
     const created = await apiRequest(client, {
       method: 'POST',
       path: '/api/gists',
       headers: { Authorization: `Bearer ${jwt}` },
-      body: { 
-        description: 'multi file', 
-        public: true, 
-        files: { 
+      body: {
+        description: 'multi file',
+        public: true,
+        files: {
           'a.txt': { content: 'A' },
-          'b.txt': { content: 'B' }
-        } 
+          'b.txt': { content: 'B' },
+        },
       },
     });
     assert.equal(created.status, 201);
     const gistId = created.body.id;
-    
+
     // Ensure missing file returns 404
     const fileResponse = await apiRequest(client, {
       path: `/api/gists/${gistId}/files/${encodeURIComponent('missing.txt')}`,
     });
     assert.equal(fileResponse.status, 404);
-    
+
     // Replace files (dropping b.txt)
     const updated = await apiRequest(client, {
       method: 'PATCH',
       path: `/api/gists/${gistId}`,
       headers: { Authorization: `Bearer ${jwt}` },
-      body: { 
-        files: { 
+      body: {
+        files: {
           'a.txt': { content: 'updated A' },
-          'c.txt': { content: 'new C' }
-        } 
+          'c.txt': { content: 'new C' },
+        },
       },
     });
     assert.equal(updated.status, 200);

@@ -8,7 +8,11 @@
     "lint": "pnpm -r run lint",
     "format": "prettier --write .",
     "test": "pnpm -r run test",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "release": "pnpm version",
+    "release:patch": "pnpm version patch && git push --follow-tags",
+    "release:minor": "pnpm version minor && git push --follow-tags",
+    "release:major": "pnpm version major && git push --follow-tags"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.56.1",

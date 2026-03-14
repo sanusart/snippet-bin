@@ -203,17 +203,24 @@ export default {
   },
 
   async deleteGist(gistId: string, userId: string) {
-    const checkGist = db.prepare('SELECT * FROM gists WHERE id = ? AND user_id = ?');
-    const existingGist = checkGist.get(gistId, userId);
+    const checkGist = db.prepare('SELECT id FROM gists WHERE id = ?');
+    const gist = checkGist.get(gistId);
 
-    if (!existingGist) {
-      return false;
+    if (!gist) {
+      return { deleted: false, reason: 'not_found' };
+    }
+
+    const checkOwnership = db.prepare('SELECT id FROM gists WHERE id = ? AND user_id = ?');
+    const ownedGist = checkOwnership.get(gistId, userId);
+
+    if (!ownedGist) {
+      return { deleted: false, reason: 'forbidden' };
     }
 
     const deleteGist = db.prepare('DELETE FROM gists WHERE id = ?');
     deleteGist.run(gistId);
 
-    return true;
+    return { deleted: true, reason: null };
   },
 
   async starGist(gistId: string, userId: string) {

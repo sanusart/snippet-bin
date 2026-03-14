@@ -98,9 +98,12 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const deleted = await storage.deleteGist(req.params.id, req.user.id);
+    const result = await storage.deleteGist(req.params.id, req.user.id);
 
-    if (!deleted) {
+    if (!result.deleted) {
+      if (result.reason === 'forbidden') {
+        return res.status(403).json({ error: 'You do not have permission to delete this gist' });
+      }
       return res.status(404).json({ error: 'Gist not found' });
     }
 

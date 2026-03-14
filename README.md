@@ -39,28 +39,39 @@ A self-hosted, open-source snippet management application inspired by GitHub Gis
 
 ### Docker Deployment
 
-1. Clone, build, and run in one command:
-   ```bash
-   git clone https://github.com/<your-org>/snippet-bin.git
-   cd snippet-bin
-   docker compose up --build
-   ```
-2. After the containers finish building you can visit the same URLs as the dev setup:
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3001
-3. Stop the stack with `docker compose down`, or use `docker compose down -v` if you want to remove the persisted data directories and start fresh.
+Run the pre-built image from Docker Hub:
 
-The Compose file already exposes both services, mounts `server/data` for the SQLite database (or git-backed storage), and reads `server/.env` + `client/.env`. If you want to override any variables before starting:
+```bash
+docker run -d \
+  -p 3001:3001 \
+  -p 5173:80 \
+  -v snippet-bin-data:/app/server/data \
+  -e JWT_SECRET=replace-with-a-secure-value \
+  --name snippet-bin \
+  sanusart/snippet-bin
+```
 
-- `SNIPPETBIN_DB_PATH`: path to the `sql.js` database file (default `data/snippetbin.db`)
+Then visit:
+
+- Frontend: http://localhost:5173
+- API: http://localhost:3001
+
+**Environment variables** (optional):
+
 - `JWT_SECRET`: token secret used by the API (required for production)
-- `STORAGE_BACKEND`: `sqlite` or `git`; git mode also respects `STORAGE_GISTS_DIR`
-- `STORAGE_GISTS_DIR`: directory where bare repositories are stored when `STORAGE_BACKEND=git`
+- `STORAGE_BACKEND`: `sqlite` or `git` (default: `sqlite`)
+- `SNIPPETBIN_DB_PATH`: path to the database file (default: `data/snippetbin.db`)
 
-> [!NOTE]
-> Create `server/.env` and `client/.env` files containing the values you need (for example, `JWT_SECRET=replace-with-a-secure-value`). The directories are already mounted into the containers, so edits to `.env` happen outside of Docker.
->
-> Check example `.env.example` files in the repo for more details.
+**Data persistence**: The `-v snippet-bin-data:/app/server/data` flag persists your data across container restarts.
+
+**Build from source**:
+
+```bash
+git clone https://github.com/sanusart/snippet-bin.git
+cd snippet-bin
+docker build -t sanusart/snippet-bin .
+docker run -d -p 3001:3001 -p 5173:80 sanusart/snippet-bin
+```
 
 ## API Usage
 
@@ -196,9 +207,9 @@ You can also import `/postman-collection.json` into Postman to explore the endpo
 
 ## Tech Stack
 
-- **Backend**: Node.js, Express, SQLite (sql.js), Git expected to be installed on the host machine (included in docker)
+- **Backend**: Node.js, Express, SQLite (sql.js), Git (included in docker image)
 - **Frontend**: pnpm, React, Vite, Tailwind CSS
-- **Deployment**: Docker, Docker Compose
+- **Deployment**: Docker
 
 ## Disclaimer
 

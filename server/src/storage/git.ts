@@ -377,8 +377,12 @@ export default {
   async deleteGist(gistId: string, userId: string) {
     const gist = getGist(gistId);
 
-    if (!gist || gist.user_id !== userId) {
-      return false;
+    if (!gist) {
+      return { deleted: false, reason: 'not_found' };
+    }
+
+    if (gist.user_id !== userId) {
+      return { deleted: false, reason: 'forbidden' };
     }
 
     deleteGist(gistId);
@@ -389,7 +393,7 @@ export default {
       fs.rmSync(workPath, { recursive: true, force: true });
     }
 
-    return true;
+    return { deleted: true, reason: null };
   },
 
   async starGist(gistId: string, userId: string) {

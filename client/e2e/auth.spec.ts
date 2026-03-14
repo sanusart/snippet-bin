@@ -6,7 +6,7 @@ test.describe('Authentication Flows', () => {
     username: `e2e_user_${uuidv4().substring(0, 8)}`,
     email: `e2e_${uuidv4().substring(0, 8)}@example.com`,
     password: 'password123',
-    name: 'E2E Tester'
+    name: 'E2E Tester',
   };
 
   test('user can register, login, and access settings', async ({ page }) => {
@@ -42,11 +42,18 @@ test.describe('Authentication Flows', () => {
     // Settings page has only one textbox — the display name input
     const nameInput = page.getByRole('textbox');
     await nameInput.fill('E2E Tester Updated');
-    await page.getByRole('button', { name: 'Save name' }).click();
 
-    // The "Name saved." flash can vanish instantly (useEffect clears it on user update),
-    // so verify the name actually changed in the header instead
-    await expect(page.getByText('Signed in as E2E Tester Updated')).toBeVisible();
+    // Wait for the input to be filled
+    await expect(nameInput).toHaveValue('E2E Tester Updated');
+
+    const saveButton = page.getByRole('button', { name: 'Save name' });
+    await saveButton.click();
+
+    // Wait for button to be enabled again (API call completed)
+    await expect(saveButton).toBeEnabled({ timeout: 10000 });
+
+    // Wait for the header to update with new name
+    await expect(page.getByText('Signed in as E2E Tester Updated')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('E2E Tester Updated')).toBeVisible();
   });
 });
