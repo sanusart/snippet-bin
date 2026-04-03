@@ -12,7 +12,7 @@ RUN pnpm -r build
 
 FROM node:24-alpine
 
-RUN apk add --no-cache dumb-init nginx git
+RUN apk add --no-cache dumb-init git
 
 WORKDIR /app
 
@@ -30,20 +30,14 @@ RUN sed -i 's/"workspace:\*"/"file:..\/shared"/' /app/server/package.json
 
 RUN npm install --omit=dev --legacy-peer-deps
 
-COPY nginx-prod.conf /etc/nginx/nginx.conf
-
-RUN mkdir -p /app/server/data /var/cache/nginx /var/run /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp
-
-RUN touch /var/log/nginx/error.log /var/log/nginx/access.log && \
-    chown -R node:node /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /app/server/data
-
-EXPOSE 3001 80
+RUN mkdir -p /app/server/data && \
+    chown -R node:node /app/server/data
 
 ENV NODE_ENV=production
+ENV PORT=3001
 
-# Run as root for nginx, then switch to node for server
-USER root
+EXPOSE 3001 8080
 
-CMD ["dumb-init", "--", "/bin/sh", "-c", \
-     "nginx -g 'daemon off;' & \
-      su -s /bin/sh -c 'cd /app/server && node dist/index.js' node"]
+USER node
+
+CMD ["node", "dist/index.js"]
