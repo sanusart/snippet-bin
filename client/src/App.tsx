@@ -7,6 +7,7 @@ import GistView from './pages/GistView';
 import GistEdit from './pages/GistEdit';
 import NewGist from './pages/NewGist';
 import Settings from './pages/Settings';
+import Docs from './pages/Docs';
 
 import { ReactNode } from 'react';
 
@@ -31,6 +32,7 @@ export default function App() {
       <main className="max-w-6xl mx-auto px-4 pb-12 pt-8">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/docs" element={<Docs />} />
           <Route
             path="/"
             element={

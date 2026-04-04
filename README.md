@@ -21,6 +21,7 @@ A video demonstration of the Snippet-bin features:
 
 <video src="https://github.com/user-attachments/assets/47fe4d55-6b92-45e7-85d0-cd46fd3cf80b"></video>
 
+## Try demo on https://snippet-bin.onrender.com (recycled after inactivity)
 
 ## Quick Start
 
@@ -62,6 +63,14 @@ Then visit:
 
 - Frontend: http://localhost:5173
 - API: http://localhost:3001
+
+### IDE Configuration
+
+To ensure ESLint and Prettier work correctly in your IDE:
+
+1.  **ESLint**: Point your IDE to the root `node_modules/eslint` and `eslint.config.mjs`.
+2.  **Prettier**: Point your IDE to the root `node_modules/prettier` and `.prettierrc`.
+3.  **Packages**: WebStorm/IntelliJ should automatically detect these if opened from the root. If not, manually set the paths in `Settings > Languages & Frameworks > JavaScript > Code Quality Tools > ESLint` and `Settings > Languages & Frameworks > JavaScript > Prettier`.
 
 **Environment variables** (optional):
 
